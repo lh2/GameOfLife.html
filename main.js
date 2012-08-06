@@ -24,7 +24,7 @@
                 if(axp === width)
                     axp = 0;
                 
-                if(data[ayp][axp] && !(yp === 0 && xp === 0))
+                if(data[ayp][axp] && !(yp === y && xp === x))
                     count++;
             }
         }
