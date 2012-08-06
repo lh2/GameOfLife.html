@@ -1,6 +1,38 @@
 (function($) {
+    var interval,
+        data;
+    
     function startGame() {
-        var container = $('#gridContainer');
+        var table = $('#gridContainer > table');
+        data = [];
+        
+        var rows = table.find("tr");
+        for(var y = 0, length = rows.length; y < length; y++)
+        {
+            var cols = rows.eq(y).children();
+            for(var x = 0, length = cols.length; x < length; x++)
+            {
+                if(!data[y])
+                    data[y] = [];
+                
+                var state = cols.eq(x).data("live");
+                if(typeof state === "undefined")
+                    state = false;
+                
+                data[y].push(state);
+            }
+        }
+        
+        interval = setInterval(stopGame, 500);
+    }
+
+    function step() {
+        
+    }
+
+    function stopGame() {
+        if(interval.clear)
+            interval.clear();
     }
     
     function newGrid(width, height) {
