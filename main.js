@@ -2,6 +2,36 @@
     var interval,
         data;
     
+    function getNeighbourCount(y, x) {
+        var count = 0;
+        var height = data.length;
+        var width = data[0].length;
+        
+        for(var yp = y - 1, ylength = yp + 3; yp < ylength; yp++)
+        {
+            for(var xp = x - 1, xlength = xp + 3; xp < xlength; xp++)
+            {
+                var ayp = yp, axp = xp;
+                if(ayp < 0)
+                    ayp = height - 1;
+                
+                if(axp < 0)
+                    axp = width - 1;
+                
+                if(ayp === height)
+                    ayp = 0;
+                
+                if(axp === width)
+                    axp = 0;
+                
+                if(data[ayp][axp] && !(yp === 0 && xp === 0))
+                    count++;
+            }
+        }
+        
+        return count;
+    }
+        
     function startGame() {
         var table = $('#gridContainer > table');
         data = [];
@@ -23,11 +53,30 @@
             }
         }
         
-        interval = setInterval(stopGame, 500);
+        interval = setInterval(step, 500);
     }
 
     function step() {
+        var newData = [];
         
+        var width = data[0].length;
+        
+        for(var y = 0, height = data.length; y < height; y++)
+        {
+            for(var x = 0; x < width; x++)
+            {
+                var neighbours = getNeighbourCount(y, x);
+                
+                if(data[y][x])
+                {
+                    
+                }
+                else
+                {
+                    
+                }
+            }
+        }
     }
 
     function stopGame() {
