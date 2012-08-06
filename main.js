@@ -95,8 +95,8 @@
     }
 
     function stopGame() {
-        if(interval.clear)
-            interval.clear();
+        if(typeof interval !== "undefined")
+            clearInterval(interval);
     }
     
     function newGrid(width, height) {
@@ -113,9 +113,12 @@
         }
         table += "</table>";
         container.append(table);
-        var button = $('<button>Start</button>');
-        button.click(startGame);
-        container.append(button);
+        var startButton = $('<button>Start</button>');
+        var stopButton = $('<button>Stop</button>');
+        startButton.click(startGame);
+        stopButton.click(stopGame);
+        container.append(startButton);
+        container.append(stopButton);
 
         container.find("td").click(function(e) {
             var sender = $(this);
