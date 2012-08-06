@@ -1,4 +1,8 @@
 (function($) {
+    function startGame() {
+        var container = $('#gridContainer');
+    }
+    
     function newGrid(width, height) {
         var container = $('#gridContainer').empty();
         var table = "<table>";
@@ -13,6 +17,23 @@
         }
         table += "</table>";
         container.append(table);
+        var button = $('<button>Start</button>');
+        button.click(startGame);
+        container.append(button);
+
+        container.find("td").click(function(e) {
+            var sender = $(this);
+            if(sender.data("live"))
+            {
+                sender.data("live", false);
+                sender.css("background-color", "");
+            }
+            else
+            {
+                sender.data("live", true);
+                sender.css("background-color", "#9999FF");
+            }
+        });
     }
     
     $(function() {
