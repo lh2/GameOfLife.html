@@ -1,6 +1,18 @@
 (function($) {
     function newGrid(width, height) {
-        
+        var container = $('#gridContainer').empty();
+        var table = "<table>";
+        for(var y = 0; y < height; y++)
+        {
+            table += "<tr>";
+            for(var x = 0; x < height; x++)
+            {
+                table += "<td>&nbsp;</td>";
+            }
+            table += "</tr>";
+        }
+        table += "</table>";
+        container.append(table);
     }
     
     $(function() {
