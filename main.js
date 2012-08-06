@@ -7,7 +7,7 @@
             table += "<tr>";
             for(var x = 0; x < height; x++)
             {
-                table += "<td>&nbsp;</td>";
+                table += "<td></td>";
             }
             table += "</tr>";
         }
