@@ -31,6 +31,33 @@
         
         return count;
     }
+
+    function updateTable() {
+        var table = $('#gridContainer > table');
+        var rows = table.find("tr");
+        
+        var height = data.length;
+        var width = data[0].length;
+        
+        for(var y = 0; y < height; y++)
+        {
+            var cols = rows.eq(y).children();
+            for(var x = 0; x < width; x++)
+            {
+                var col = cols.eq(x);
+                if(data[y][x])
+                {
+                    col.css("background-color", "#9999FF");
+                    col.data("live", true);
+                }
+                else
+                {
+                    col.css("background-color", "");
+                    col.data("live", false);
+                }
+            }
+        }
+    }
         
     function startGame() {
         var table = $('#gridContainer > table');
@@ -92,6 +119,9 @@
                 }
             }
         }
+        
+        data = newData;
+        updateTable();
     }
 
     function stopGame() {
