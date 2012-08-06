@@ -63,17 +63,32 @@
         
         for(var y = 0, height = data.length; y < height; y++)
         {
+            newData[y] = [];
             for(var x = 0; x < width; x++)
             {
                 var neighbours = getNeighbourCount(y, x);
                 
                 if(data[y][x])
                 {
-                    
+                    if(neighbours < 2 || neighbours > 3)
+                    {
+                        newData[y].push(false);
+                    }
+                    else
+                    {
+                        newData[y].push(true);
+                    }
                 }
                 else
                 {
-                    
+                    if(neighbours === 3)
+                    {
+                        newData[y].push(true);
+                    }
+                    else
+                    {
+                        newData[y].push(false);
+                    }
                 }
             }
         }
