@@ -18,11 +18,25 @@
     <body>
         <script type="application/javascript" src="jquery-1.7.2.min.js"></script>
         <script type="application/javascript" src="main.js"></script>
-
-        <input type="text" id="gridWidth" />
-        x
-        <input type="text" id="gridHeight" />
-        <button id="submit">Create grid</button>
+        
+        <div id="inputs">
+            <span>Width:</span>
+            <input type="text" id="gridWidth" />
+            
+            <div class=".clear"></div>
+            
+            <span>Height</span>
+            <input type="text" id="gridHeight" />
+            
+            <div class=".clear"></div>
+            
+            <span>Speed</span>
+            <input type="text" id="gridSpeed" />
+            
+            <div class=".clear"></div>
+            
+            <button id="submit">Create grid</button>
+        </div>
         
         <div id="gridContainer"></div>
     </body>
