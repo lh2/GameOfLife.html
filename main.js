@@ -9,6 +9,7 @@
 
 (function($) {
     var interval,
+        stepInterval,
         data;
     
     function getNeighbourCount(y, x) {
@@ -89,7 +90,7 @@
             }
         }
         
-        interval = setInterval(step, 500);
+        interval = setInterval(step, stepInterval);
     }
 
     function step() {
@@ -140,7 +141,7 @@
     
     function newGrid(width, height) {
         var container = $('#gridContainer').empty();
-        var table = "<table>";
+        var table = "<table align=\"center\">";
         for(var y = 0; y < height; y++)
         {
             table += "<tr>";
@@ -219,6 +220,7 @@
             if(!markWidthBox && !markHeightBox && !markIntervalBox)
             {
                 newGrid(width, height);
+                stepInterval = parseInt(intervalValue);
                 widthBox.css("background-color", "");
                 heightBox.css("background-color", "");
                 intervalBox.css("background-color", "");

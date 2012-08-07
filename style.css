@@ -34,3 +34,7 @@ table {
 .clear {
     clear: both;
 }
+
+#gridContainer {
+    text-align: center;
+}
