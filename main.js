@@ -152,12 +152,25 @@
         }
         table += "</table>";
         container.append(table);
-        var startButton = $('<button>Start</button>');
-        var stopButton = $('<button>Stop</button>');
-        startButton.click(startGame);
-        stopButton.click(stopGame);
-        container.append(startButton);
-        container.append(stopButton);
+        var startStopButton = $('<button>Start</button>');
+        startStopButton.data("mode", "start");
+        startStopButton.click(function() {
+            var sender = $(this);
+            if(sender.data("mode") === "start")
+            {
+                sender.html("Stop");
+                sender.data("mode", "stop");
+                startGame();
+            }
+            else
+            {
+                sender.html("Start");
+                sender.data("mode", "start");
+                stopGame();
+            }
+            
+        });
+        container.append(startStopButton);
 
         container.find("td").click(function(e) {
             var sender = $(this);
