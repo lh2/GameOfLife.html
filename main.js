@@ -146,6 +146,8 @@
     function stopGame() {
         if(typeof interval !== "undefined")
             clearInterval(interval);
+        
+        data = undefined;
     }
     
     function newGrid(width, height) {
@@ -184,15 +186,25 @@
 
         container.find("td").click(function(e) {
             var sender = $(this);
+            var live;
             if(sender.data("live"))
             {
-                sender.data("live", false);
+                live = false;
                 sender.css("background-color", "");
             }
             else
             {
-                sender.data("live", true);
+                live = true;
                 sender.css("background-color", "#9999FF");
+            }
+            
+            sender.data("live", live);
+            if(typeof data !== "undefined")
+            {
+                var x = sender.index();
+                var y = sender.parent().index();
+                
+                data[y][x] = live;
             }
         });
     }
