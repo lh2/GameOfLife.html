@@ -95,6 +95,7 @@
 
     function step() {
         var newData = [];
+        var cellsAlive = 0;
         
         var width = data[0].length;
         
@@ -114,6 +115,7 @@
                     else
                     {
                         newData[y].push(true);
+                        cellsAlive++;
                     }
                 }
                 else
@@ -121,6 +123,7 @@
                     if(neighbours === 3)
                     {
                         newData[y].push(true);
+                        cellsAlive++;
                     }
                     else
                     {
@@ -132,6 +135,12 @@
         
         data = newData;
         updateTable();
+
+        if(cellsAlive === 0)
+        {
+            stopGame();
+            $('#gridContainer > button').html("Start").data("mode", "start");
+        }
     }
 
     function stopGame() {
