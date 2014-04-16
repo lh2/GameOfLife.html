@@ -16,27 +16,24 @@
         <link rel="stylesheet" href="style.css" />
     </head>
     <body>
-        <script type="application/javascript" src="jquery-1.7.2.min.js"></script>
-        <script type="application/javascript" src="main.js"></script>
+        <script type="application/javascript" src="../src/gameoflife.js"></script>
         
-        <div id="inputs">
-            <span>Width:</span>
-            <input type="text" id="gridWidth" />
-            
-            <div class="clear"></div>
-            
-            <span>Height:</span>
-            <input type="text" id="gridHeight" />
-            
-            <div class="clear"></div>
-            
-            <span>Interval:</span>
-            <input type="text" id="gridInterval" value="500" />
-            
-            <div class="clear"></div>
-            <button id="submit">Create grid</button>
+        <div id="gridContainer">
+            <button id="toggle">Start</button><br>
         </div>
-        
-        <div id="gridContainer"></div>
+
+        <script type="application/javascript">
+            var game = new GameOfLife();
+            document.getElementById('gridContainer').appendChild(game.element);
+            document.getElementById('toggle').addEventListener('click', function() {
+                if(game.isRunning) {
+                    this.innerHTML = 'Start';
+                    game.stop();
+                } else {
+                    this.innerHTML = 'Stop';
+                    game.start(500);
+                }
+            }, false);
+        </script>
     </body>
 </html>

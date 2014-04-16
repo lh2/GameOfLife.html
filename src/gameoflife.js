@@ -1,5 +1,5 @@
 /*! 
- * GameOfLife.html Copyright (C) 2012 Lukas Henkel
+ * GameOfLife.js Copyright (C) 2014 Lukas Henkel
  * 
  * Copying and distribution of this file, with or without modification,
  * are permitted in any medium without royalty provided the copyright
@@ -7,245 +7,146 @@
  * without any warranty.
  */
 
-(function($) {
-    var interval,
-        stepInterval,
-        data;
-    
-    function getNeighbourCount(y, x) {
-        var count = 0;
-        var height = data.length;
-        var width = data[0].length;
+var GameOfLife = (function() {
+    var Canvas = (function() {
+        function Canvas(elem) {
+            this.ctx = elem.getContext('2d');
+        }
+
+        Canvas.prototype.rect = function(x, y, width, height, radius) {
+            radius = radius || 0;
+            this.ctx.beginPath();
+            this.ctx.moveTo(x + radius, y);
+            this.ctx.lineTo(x + width - radius, y);
+            this.ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            this.ctx.lineTo(x + width, y + height - radius);
+            this.ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            this.ctx.lineTo(x + radius, y + height);
+            this.ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            this.ctx.lineTo(x, y + radius);
+            this.ctx.quadraticCurveTo(x, y, x + radius, y);
+            this.ctx.closePath();
+        };
+
+        Canvas.prototype.fill = function(color) {
+            this.ctx.fillStyle = color;
+            this.ctx.fill();
+        };
+
+        return Canvas;
+    })();
+
+    var ifNotTypeThen = function(val, type, then) {
+        if(typeof val !== type)
+            return then;
+        return val;
+    };
+
+    var Cell = (function() {
+        function Cell(canvas, x, y, style) {
+            this.canvas = canvas;
+            this.x = x;
+            this.y = y;
+            this.style = style;
+            this.enabled = false;
+        }
+
+        Cell.prototype.draw = function() {
+            this.canvas.rect(this.x, this.y, this.style.width, this.style.height, this.style.borderRadius);
+            this.canvas.fill(this.enabled ? this.style.colorEnabled : this.style.colorDisabled);
+        };
+
+        Cell.prototype.toggle = function() {
+            this.enabled = !this.enabled;
+            this.draw();
+        };
+
+        return Cell;
+    })();
+
+    var defaultOptions = function(options) {
+        options.width = ifNotTypeThen(options.width, 'number', 10);
+        options.height = ifNotTypeThen(options.height, 'number', 10);
+        options.border = ifNotTypeThen(options.border, 'number', 1);
+        options.bgColor = ifNotTypeThen(options.bgColor, 'string', '#000');
+        options.borderRadius = ifNotTypeThen(options.borderRadius, 'number', 0);
+        options.cellStyle = options.cellStyle || {};
+        options.cellStyle.width  = ifNotTypeThen(options.cellStyle.cellWidth, 'number', 50);
+        options.cellStyle.height = ifNotTypeThen(options.cellStyle.cellHeight, 'number', 50);
+        options.cellStyle.borderRadius = ifNotTypeThen(options.cellStyle.borderRadius, 'number', options.borderRadius);
+        options.cellStyle.colorDisabled = ifNotTypeThen(options.cellStyle.colorDisabled, 'string', '#FFF');
+        options.cellStyle.colorEnabled = ifNotTypeThen(options.cellStyle.colorEnabled, 'string', '#000');
+
+        options.cellStyle.bgColor = options.bgColor;
+        options.cellStyle.border = options.border;
+    };
+
+    function GameOfLife(options) {
+        options = options || {};
+        defaultOptions(options);
+
+        this.options = options;
+        this.element = document.createElement('canvas');
+        this.width  = this.element.width  = options.border + (options.cellStyle.width  + options.border) * options.width;
+        this.height = this.element.height = options.border + (options.cellStyle.height + options.border) * options.height;
+        this.canvas = new Canvas(this.element);
+        this.isRunning = false;
+        this.intervalId = -1;
         
-        for(var yp = y - 1, ylength = yp + 3; yp < ylength; yp++)
-        {
-            for(var xp = x - 1, xlength = xp + 3; xp < xlength; xp++)
-            {
-                var ayp = yp, axp = xp;
-                if(ayp < 0)
-                    ayp = height - 1;
-                
-                if(axp < 0)
-                    axp = width - 1;
-                
-                if(ayp === height)
-                    ayp = 0;
-                
-                if(axp === width)
-                    axp = 0;
-                
-                if(data[ayp][axp] && !(yp === y && xp === x))
-                    count++;
+        this.cells = [];
+        for(var y = 0; y < options.height; y++) {
+            for(var x = 0; x < options.width; x++) {
+                var posX = options.border + (options.cellStyle.width  + options.border) * x,
+                    posY = options.border + (options.cellStyle.height + options.border) * y;
+                this.cells.push(new Cell(this.canvas, posX, posY, options.cellStyle));
             }
         }
-        
-        return count;
+
+        var self = this;
+        this.element.addEventListener('click', function(e) {
+            var rect = self.element.getBoundingClientRect(),
+                posX = e.clientX - rect.left - self.options.border,
+                posY = e.clientY - rect.top - self.options.border;
+
+            var cellWidthBorder  = self.options.cellStyle.width  + self.options.border,
+                cellHeightBorder = self.options.cellStyle.height + self.options.border;
+            
+            var x = parseInt(posX / cellWidthBorder, 10),
+                y = parseInt(posY / cellHeightBorder, 10);
+
+            if(posX % cellWidthBorder <= self.options.cellStyle.width &&
+               posY % cellHeightBorder <= self.options.cellStyle.height) {
+                self.cells[y * self.options.height + x].toggle();
+            }
+        }, false);
+
+        this.draw();
     }
 
-    function updateTable() {
-        var table = $('#gridContainer > table');
-        var rows = table.find("tr");
-        
-        var height = data.length;
-        var width = data[0].length;
-        
-        for(var y = 0; y < height; y++)
-        {
-            var cols = rows.eq(y).children();
-            for(var x = 0; x < width; x++)
-            {
-                var col = cols.eq(x);
-                if(data[y][x])
-                {
-                    col.css("background-color", "#9999FF");
-                    col.data("live", true);
-                }
-                else
-                {
-                    col.css("background-color", "");
-                    col.data("live", false);
-                }
-            }
-        }
-    }
-        
-    function startGame() {
-        var table = $('#gridContainer > table');
-        data = [];
-        
-        var rows = table.find("tr");
-        for(var y = 0, length = rows.length; y < length; y++)
-        {
-            var cols = rows.eq(y).children();
-            for(var x = 0, length = cols.length; x < length; x++)
-            {
-                if(!data[y])
-                    data[y] = [];
-                
-                var state = cols.eq(x).data("live");
-                if(typeof state === "undefined")
-                    state = false;
-                
-                data[y].push(state);
-            }
-        }
-        
-        interval = setInterval(step, stepInterval);
-    }
+    GameOfLife.prototype.draw = function() {
+        this.canvas.rect(0, 0, this.width, this.height, this.options.borderRadius);
+        this.canvas.fill(this.options.bgColor);
+        for(var i = 0, l = this.cells.length; i < l; i++)
+            this.cells[i].draw();
+    };
 
-    function step() {
-        var newData = [];
-        var cellsAlive = 0;
-        
-        var width = data[0].length;
-        
-        for(var y = 0, height = data.length; y < height; y++)
-        {
-            newData[y] = [];
-            for(var x = 0; x < width; x++)
-            {
-                var neighbours = getNeighbourCount(y, x);
-                
-                if(data[y][x])
-                {
-                    if(neighbours < 2 || neighbours > 3)
-                    {
-                        newData[y].push(false);
-                    }
-                    else
-                    {
-                        newData[y].push(true);
-                        cellsAlive++;
-                    }
-                }
-                else
-                {
-                    if(neighbours === 3)
-                    {
-                        newData[y].push(true);
-                        cellsAlive++;
-                    }
-                    else
-                    {
-                        newData[y].push(false);
-                    }
-                }
-            }
-        }
-        
-        data = newData;
-        updateTable();
+    GameOfLife.prototype.step = function() {
 
-        if(cellsAlive === 0)
-        {
-            stopGame();
-            $('#gridContainer > button').html("Start").data("mode", "start");
-        }
-    }
+    };
 
-    function stopGame() {
-        if(typeof interval !== "undefined")
-            clearInterval(interval);
-        
-        data = undefined;
-    }
-    
-    function newGrid(width, height) {
-        var container = $('#gridContainer').empty();
-        var table = "<table align=\"center\">";
-        for(var y = 0; y < height; y++)
-        {
-            table += "<tr>";
-            for(var x = 0; x < height; x++)
-            {
-                table += "<td></td>";
-            }
-            table += "</tr>";
-        }
-        table += "</table>";
-        container.append(table);
-        var startStopButton = $('<button>Start</button>');
-        startStopButton.data("mode", "start");
-        startStopButton.click(function() {
-            var sender = $(this);
-            if(sender.data("mode") === "start")
-            {
-                sender.html("Stop");
-                sender.data("mode", "stop");
-                startGame();
-            }
-            else
-            {
-                sender.html("Start");
-                sender.data("mode", "start");
-                stopGame();
-            }
-            
-        });
-        container.append(startStopButton);
+    GameOfLife.prototype.start = function(interval) {
+        var self = this;
+        this.intervalId = setInterval(function() {
+            self.step();
+        }, interval);
+        this.isRunning = true;
+    };
 
-        container.find("td").click(function(e) {
-            var sender = $(this);
-            var live;
-            if(sender.data("live"))
-            {
-                live = false;
-                sender.css("background-color", "");
-            }
-            else
-            {
-                live = true;
-                sender.css("background-color", "#9999FF");
-            }
-            
-            sender.data("live", live);
-            if(typeof data !== "undefined")
-            {
-                var x = sender.index();
-                var y = sender.parent().index();
-                
-                data[y][x] = live;
-            }
-        });
-    }
-    
-    $(function() {
-        $('#submit').click(function() {
-            var widthBox = $('#gridWidth');
-            var heightBox = $('#gridHeight');
-            var intervalBox = $('#gridInterval');
-            
-            var width = widthBox.val();
-            var height = heightBox.val();
-            var intervalValue = intervalBox.val();
-            
-            var markWidthBox = !width.match(/^[0-9]+$/);
-            var markHeightBox = !height.match(/^[0-9]+$/);
-            var markIntervalBox = !intervalValue.match(/^[0-9]+$/);
-            
-            if(markWidthBox)
-                widthBox.css("background-color", "#FF0000");
-            else
-                widthBox.css("background-color", "");
-            
-            if(markHeightBox)
-                heightBox.css("background-color", "#FF0000");
-            else
-                heightBox.css("background-color", "");
-            
-            if(markIntervalBox)
-                intervalBox.css("background-color", "#FF0000");
-            else
-                intervalBox.css("background-color", "");
-            
-            if(!markWidthBox && !markHeightBox && !markIntervalBox)
-            {
-                newGrid(width, height);
-                stepInterval = parseInt(intervalValue);
-                widthBox.css("background-color", "");
-                heightBox.css("background-color", "");
-                intervalBox.css("background-color", "");
-            }
-        });
-    });
-})(jQuery);
+    GameOfLife.prototype.stop = function() {
+        clearInterval(this.intervalId);
+        this.isRunning = false;
+    };
+
+    return GameOfLife;
+})();
+
