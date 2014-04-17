@@ -56,6 +56,8 @@ var GameOfLife = (function() {
 
         Cell.prototype.draw = function() {
             this.enabled = this.enabledCached;
+            this.canvas.rect(this.posX, this.posY, this.style.width, this.style.height)
+                       .fill(this.style.bgColor);
             this.canvas.rect(this.posX, this.posY, this.style.width, this.style.height, this.style.borderRadius)
                        .fill(this.enabled ? this.style.colorEnabled : this.style.colorDisabled);
             return this;
