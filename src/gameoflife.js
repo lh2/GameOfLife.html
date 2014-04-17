@@ -26,11 +26,13 @@ var GameOfLife = (function() {
             this.ctx.lineTo(x, y + radius);
             this.ctx.quadraticCurveTo(x, y, x + radius, y);
             this.ctx.closePath();
+            return this;
         };
 
         Canvas.prototype.fill = function(color) {
             this.ctx.fillStyle = color;
             this.ctx.fill();
+            return this;
         };
 
         return Canvas;
@@ -45,23 +47,63 @@ var GameOfLife = (function() {
     var Cell = (function() {
         function Cell(canvas, x, y, style) {
             this.canvas = canvas;
-            this.x = x;
-            this.y = y;
+            this.posX = x;
+            this.posY = y;
             this.style = style;
             this.enabled = false;
+            this.enabledCached = false;
         }
 
         Cell.prototype.draw = function() {
-            this.canvas.rect(this.x, this.y, this.style.width, this.style.height, this.style.borderRadius);
-            this.canvas.fill(this.enabled ? this.style.colorEnabled : this.style.colorDisabled);
+            this.enabled = this.enabledCached;
+            this.canvas.rect(this.posX, this.posY, this.style.width, this.style.height, this.style.borderRadius)
+                       .fill(this.enabled ? this.style.colorEnabled : this.style.colorDisabled);
+            return this;
         };
 
         Cell.prototype.toggle = function() {
-            this.enabled = !this.enabled;
-            this.draw();
+            this.enabledCached = !this.enabled;
+            return this;
+        };
+
+        Cell.prototype.live = function() {
+            this.enabledCached = true;
+            return this;
+        };
+
+        Cell.prototype.die = function() {
+            this.enabledCached = false;
+            return this;
         };
 
         return Cell;
+    })();
+
+    var CellCollection = (function() {
+        function CellCollection(cols, rows) {
+            this.elements = [];
+            this.cols = cols;
+            this.rows = rows;
+        }
+
+        CellCollection.prototype.push = function(cell) {
+            cell.x = this.elements.length % this.rows;
+            cell.y = parseInt(this.elements.length / this.rows, 10);
+            cell.cells = this;
+            this.elements.push(cell);
+        };
+
+        CellCollection.prototype.draw = function() {
+            for(var i = 0, l = this.elements.length; i < l; i++)
+                this.elements[i].draw();
+            return this;
+        };
+
+        CellCollection.prototype.get = function(x, y) {
+            return this.elements[y * this.cols + x];
+        };
+
+        return CellCollection;
     })();
 
     var defaultOptions = function(options) {
@@ -93,7 +135,7 @@ var GameOfLife = (function() {
         this.isRunning = false;
         this.intervalId = -1;
         
-        this.cells = [];
+        this.cells = new CellCollection(options.width, options.height);
         for(var y = 0; y < options.height; y++) {
             for(var x = 0; x < options.width; x++) {
                 var posX = options.border + (options.cellStyle.width  + options.border) * x,
@@ -116,7 +158,7 @@ var GameOfLife = (function() {
 
             if(posX % cellWidthBorder <= self.options.cellStyle.width &&
                posY % cellHeightBorder <= self.options.cellStyle.height) {
-                self.cells[y * self.options.height + x].toggle();
+                self.cells.get(x, y).toggle().draw();
             }
         }, false);
 
@@ -124,14 +166,14 @@ var GameOfLife = (function() {
     }
 
     GameOfLife.prototype.draw = function() {
-        this.canvas.rect(0, 0, this.width, this.height, this.options.borderRadius);
-        this.canvas.fill(this.options.bgColor);
-        for(var i = 0, l = this.cells.length; i < l; i++)
-            this.cells[i].draw();
+        this.canvas.rect(0, 0, this.width, this.height, this.options.borderRadius)
+                   .fill(this.options.bgColor);
+        this.cells.draw();
+        return this;
     };
 
     GameOfLife.prototype.step = function() {
-
+        return this;
     };
 
     GameOfLife.prototype.start = function(interval) {
@@ -140,11 +182,13 @@ var GameOfLife = (function() {
             self.step();
         }, interval);
         this.isRunning = true;
+        return this;
     };
 
     GameOfLife.prototype.stop = function() {
         clearInterval(this.intervalId);
         this.isRunning = false;
+        return this;
     };
 
     return GameOfLife;
