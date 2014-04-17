@@ -1,0 +1,47 @@
+<!--
+ * GameOfLife.js Copyright (C) 2014 Lukas Henkel
+ *
+ * Copying and distribution of this file, with or without modification,
+ * are permitted in any medium without royalty provided the copyright
+ * notice and this notice are preserved.  This file is offered as-is,
+ * without any warranty.
+-->
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Conways game of life
+        </title>
+        <link rel="stylesheet" href="style.css" />
+    </head>
+    <body>
+        <script type="application/javascript" src="../src/gameoflife.js"></script>
+        
+        <div id="gridContainer">
+            <button id="toggle">Start</button><br>
+        </div>
+
+        <script type="application/javascript">
+            var game = new GameOfLife({
+                bgColor: '#dedede',
+                border: 10,
+                borderRadius: 5,
+                cellStyle: {
+                    colorEnabled: '#55d',
+                    colorDisabled: '#ababab'
+                }
+            });
+            document.getElementById('gridContainer').appendChild(game.element);
+            document.getElementById('toggle').addEventListener('click', function() {
+                if(game.isRunning) {
+                    this.innerHTML = 'Start';
+                    game.stop();
+                } else {
+                    this.innerHTML = 'Stop';
+                    game.start(500);
+                }
+            }, false);
+        </script>
+    </body>
+</html>

@@ -1,5 +1,5 @@
 /*!
- * GameOfLife.html Copyright (C) 2012 Lukas Henkel
+ * GameOfLife.js Copyright (C) 2014 Lukas Henkel
  *
  * Copying and distribution of this file, with or without modification,
  * are permitted in any medium without royalty provided the copyright
@@ -38,3 +38,20 @@ table {
 #gridContainer {
     text-align: center;
 }
+
+#toggle {
+    padding: 5px;
+    font-weight: bold;
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    border: 1px solid #dedede;
+    border-radius: 5px;
+    background-color: #eeeeee;
+    cursor: pointer;
+    transition: all .2s;
+}
+
+#toggle:hover {
+    background-color: #fafafa;
+}
+
