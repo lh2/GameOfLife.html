@@ -76,6 +76,17 @@ var GameOfLife = (function() {
             return this;
         };
 
+        Cell.prototype.getNeighbors = function() {
+            var neighbors = [];
+            for(var y = this.y - 1, yl = this.y + 2; y < yl; y++) {
+                for(var x = this.x - 1, xl = this.x + 2; x < xl; x++) {
+                    if(x !== this.x || y != this.y)
+                        neighbors.push(this.cells.get(x, y));
+                }
+            }
+            return neighbors;
+        };
+
         return Cell;
     })();
 
@@ -100,6 +111,10 @@ var GameOfLife = (function() {
         };
 
         CellCollection.prototype.get = function(x, y) {
+            if(x < 0) x = this.cols + x;
+            if(y < 0) y = this.rows + y;
+            x = x % this.cols;
+            y = y % this.rows;
             return this.elements[y * this.cols + x];
         };
 
@@ -173,6 +188,25 @@ var GameOfLife = (function() {
     };
 
     GameOfLife.prototype.step = function() {
+        var cells = this.cells.elements;
+        for(var i = 0, il = cells.length; i < il; i++) {
+            var cell = cells[i],
+                neighbors = cell.getNeighbors();
+
+            var neighborsAlive = 0;
+            for(var j = 0, jl = neighbors.length; j < jl; j++) {
+                if(!neighbors[j]) console.log(neighbors.length, j, cell.x, cell.y);
+                if(neighbors[j].enabled)
+                    neighborsAlive++;
+            }
+
+            if(cell.enabled && neighborsAlive < 2 || neighborsAlive > 3) {
+                cell.die();
+            } else if(neighborsAlive === 3) {
+                cell.live();
+            }
+        }
+        this.cells.draw();
         return this;
     };
 
