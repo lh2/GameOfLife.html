@@ -54,12 +54,15 @@ var GameOfLife = (function() {
             this.enabledCached = false;
         }
 
-        Cell.prototype.draw = function() {
+        Cell.prototype.draw = function(force) {
+            var redraw = this.enabled !== this.enabledCached;
             this.enabled = this.enabledCached;
-            this.canvas.rect(this.posX, this.posY, this.style.width, this.style.height)
-                       .fill(this.style.bgColor);
-            this.canvas.rect(this.posX, this.posY, this.style.width, this.style.height, this.style.borderRadius)
-                       .fill(this.enabled ? this.style.colorEnabled : this.style.colorDisabled);
+            if(redraw || force) {
+                this.canvas.rect(this.posX, this.posY, this.style.width, this.style.height)
+                           .fill(this.style.bgColor);
+                this.canvas.rect(this.posX, this.posY, this.style.width, this.style.height, this.style.borderRadius)
+                           .fill(this.enabled ? this.style.colorEnabled : this.style.colorDisabled);
+            }
             return this;
         };
 
@@ -106,9 +109,9 @@ var GameOfLife = (function() {
             this.elements.push(cell);
         };
 
-        CellCollection.prototype.draw = function() {
+        CellCollection.prototype.draw = function(force) {
             for(var i = 0, l = this.elements.length; i < l; i++)
-                this.elements[i].draw();
+                this.elements[i].draw(force);
             return this;
         };
 
@@ -185,7 +188,7 @@ var GameOfLife = (function() {
     GameOfLife.prototype.draw = function() {
         this.canvas.rect(0, 0, this.width, this.height, this.options.borderRadius)
                    .fill(this.options.bgColor);
-        this.cells.draw();
+        this.cells.draw(true);
         return this;
     };
 
