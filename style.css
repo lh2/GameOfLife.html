@@ -1,0 +1,8 @@
+/*!
+ * GameOfLife.js Copyright (C) 2014 Lukas Henkel
+ *
+ * Copying and distribution of this file, with or without modification,
+ * are permitted in any medium without royalty provided the copyright
+ * notice and this notice are preserved.  This file is offered as-is,
+ * without any warranty.
+ */td{border:1px solid #000;height:30px;width:30px}table{border-collapse:collapse;border-spacing:0}#inputs{width:300px;margin:auto}#inputs span{float:left}#inputs input{float:right}.clear{clear:both}#gridContainer{text-align:center}#toggle{padding:5px;font-weight:700;font-size:1.2em;margin-bottom:10px;border:1px solid #dedede;border-radius:5px;background-color:#eee;cursor:pointer;transition:all .2s}#toggle:hover{background-color:#fafafa}
