@@ -217,15 +217,23 @@ var GameOfLife = (function() {
 
     GameOfLife.prototype.start = function(interval) {
         var self = this;
-        this.intervalId = setInterval(function() {
-            self.step();
-        }, interval);
+        var last = new Date();
+        (function loop() {
+            self.intervalId = requestAnimationFrame(function() {
+                var now = new Date();
+                if(now - last >= interval) {
+                    last = now;
+                    self.step();
+                }
+                loop();
+            });
+        })();
         this.isRunning = true;
         return this;
     };
 
     GameOfLife.prototype.stop = function() {
-        clearInterval(this.intervalId);
+        cancelAnimationFrame(this.intervalId);
         this.isRunning = false;
         return this;
     };
